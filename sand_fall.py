@@ -1,11 +1,6 @@
 import pygame
 from pygame import time
-import operator
-
 #import time
-
-
-
 
 def draw(self, position, colour):#, dimensions):       #Draw the particle to the board
 
@@ -17,11 +12,11 @@ def draw(self, position, colour):#, dimensions):       #Draw the particle to the
 class Sand():
 
     def __init__(self, coordinates):
-        self.x, self.y = coordinates[0], coordinates[1]      #Coordinates
+        self.x = coordinates[0]      #Coordinates
+        self.y = coordinates[1]
         self.exists = True
         self.colour = (255, 255, 102)   #Yellowy Sand Colour
         self.dimension = (8, 8)
-        #self.rect = pygame.Rect(self.x, self.y, self.dimension)
         self.fall_rate = 0  #Move every 5 frames
         self.current_fall = self.fall_rate
     
@@ -34,6 +29,15 @@ class Sand():
             self.current_fall -= 1
             return False
 
+class Concrete():
+
+    def __init__(self, coordinates):
+        self.x, self.y = coordinates[0], coordinates[1]
+        self.exists = True
+        self.colour = (130, 130, 130)
+        self.dimension = (8, 8)
+        self.is_solid = True
+
 
 
 class powder_game:
@@ -41,7 +45,7 @@ class powder_game:
     def __init__(self):
         self._running = False
         self.board = None
-        self.size = self.weight, self.height = 1920, 1080#1280, 720
+        self.size = self.weight, self.height = 1280, 720
         self.particles = []
         #self.orig_surf = None
         #self.new_surf = None
@@ -97,6 +101,14 @@ class powder_game:
         
         self.draw(position, particle.colour, particle.dimension)
 
+    def spawn_concrete(self):
+        for x in range(1, 1280, 8):
+            particle = Concrete((x, 8))
+
+            self.particles.append(particle)
+
+            self.draw((particle.x, particle.y), particle.colour, particle.dimension)
+        pygame.display.flip()
 
     def on_execute(self):
         
@@ -109,7 +121,7 @@ class powder_game:
         #y = 50
 
         self.spawn_lots()
-        #self.spawn_concrete()
+        self.spawn_concrete()
         clock = pygame.time.Clock()
 
 
@@ -136,7 +148,7 @@ class powder_game:
 
             self.on_loop()
             self.on_render()
-            clock.tick(120)
+            clock.tick(60)
 
     def draw(self, position, colour, dimension):       #Draw the particle to the board
 

@@ -4,6 +4,103 @@ import operator
 
 #import time
 
+class sll_iterator():
+
+    def __init__(self, head):
+        self.current = head
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+
+        if not self.current:
+            raise StopIteration
+
+        else:
+            item = self.current
+            self.current = self.current.get_next()
+            return item
+
+class singly_linked_list():
+
+    def __init__(self):
+        self.head = None
+        self.size = 0
+
+    def __iter__(self):
+        return sll_iterator(self.head)
+
+    def create_node(self, value, next):
+        node = singly_linked_list_node(value, None)
+        return node
+
+
+    def insert(self, value):
+        if self.head != None:
+            current = self.head
+
+            while current != None:
+                previous = current
+                current = current.next 
+            previous.next = self.create_node(value, None)
+        else:
+            self.head = self.create_node(value, None)
+
+
+    def delete(self, target):           #Not done
+        if self.head != None:
+            current = self.head
+
+            while current.element != target or current != None:    
+                previous = current
+                current = current.next
+            
+
+    def find_max(self):             
+        if self.head != None:
+            
+            current = self.head
+            max = current.element
+
+            while current != None:
+                if current.element > max:
+                    max = current.element
+                current = current.next
+            return max
+        else:
+            return None
+    
+    def print(self):
+        if self.head != None:
+            current = self.head
+
+            while current != None:
+                print(current.element)
+                current = current.next
+
+
+    def find_target(self, target):
+        
+        current = self.head 
+        
+        while current != None:
+            if current.element == target:
+                return True
+            current = current.next
+        return False
+            
+
+
+class singly_linked_list_node():
+    __slots__ = 'next', 'element'
+    def __init__(self, value, next):
+        self.next = next
+        self.element = value
+
+    def get_next(self):
+        
+        return self.next
 
 
 
@@ -42,7 +139,7 @@ class powder_game:
         self._running = False
         self.board = None
         self.size = self.weight, self.height = 1920, 1080#1280, 720
-        self.particles = []
+        self.particles = singly_linked_list()
         #self.orig_surf = None
         #self.new_surf = None
 
@@ -78,6 +175,7 @@ class powder_game:
         
         for particle in self.particles:
             try:    
+
                 if particle.falling():
                     particle.y += 8#particle.fall_rate        #"Fall" the object by as many pixels defined in fall_rate
                     #print(particle.fall_rate)
@@ -93,7 +191,7 @@ class powder_game:
     def spawn(self, position):  #Determine current selected particle (Or use a global set variable) and spawn that particle. Add particle object to particle list
         
         particle = Sand(position)
-        self.particles.append(particle)
+        self.particles.insert(particle)
         
         self.draw(position, particle.colour, particle.dimension)
 
@@ -109,7 +207,6 @@ class powder_game:
         #y = 50
 
         self.spawn_lots()
-        #self.spawn_concrete()
         clock = pygame.time.Clock()
 
 
@@ -136,7 +233,8 @@ class powder_game:
 
             self.on_loop()
             self.on_render()
-            clock.tick(120)
+            self.particles.print()
+            clock.tick(60)
 
     def draw(self, position, colour, dimension):       #Draw the particle to the board
 
