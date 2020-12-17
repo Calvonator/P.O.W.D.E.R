@@ -18,22 +18,15 @@ class Sand():
 
     def __init__(self, coordinates):
         self.x, self.y = coordinates[0], coordinates[1]      #Coordinates
-        self.exists = True
+        #self.exists = True
+        self.stop = False
         self.colour = (255, 255, 102)   #Yellowy Sand Colour
         self.dimension = (8, 8)
-        #self.rect = pygame.Rect(self.x, self.y, self.dimension)
-        self.fall_rate = 0  #Move every 5 frames
-        self.current_fall = self.fall_rate
+        self.rect = pygame.Rect(self.x, self.y, self.dimension[0], self.dimension[1])
+        self.fall_rate = 8  #Fall 8 pixels per frame
     
-    def falling(self):
-        if self.current_fall == 0:
-            self.current_fall = self.fall_rate
-            return True
-
-        else:
-            self.current_fall -= 1
-            return False
-
+    def update(self):
+        self.rect.left, self.rect.top = self.x, self.y
 
 
 class powder_game:
@@ -41,8 +34,9 @@ class powder_game:
     def __init__(self):
         self._running = False
         self.board = None
-        self.size = self.weight, self.height = 1920, 1080#1280, 720
+        self.size = self.width, self.height = 1280, 720
         self.particles = []
+        self.particle_size = 0
         #self.orig_surf = None
         #self.new_surf = None
 
@@ -68,24 +62,64 @@ class powder_game:
 
     def spawn_lots(self):
 
-        for x in range(10, 500, 25):
+        #op = 0
+        #while True:
+        for x in range(10, 19, 25):
             self.spawn((x, 50))
 
 
     def on_render(self):
+
+        self.particle_size = len(self.particles)
         
         self.board.fill((0, 0, 0))
+
+        for particle in self.particles:
+            particle.update()
         
         for particle in self.particles:
-            try:    
-                if particle.falling():
-                    particle.y += 8#particle.fall_rate        #"Fall" the object by as many pixels defined in fall_rate
-                    #print(particle.fall_rate)
-                    self.draw((particle.x, particle.y), particle.colour, particle.dimension)
-            except:
-                pass
-        pygame.display.flip()
+
+            
+            #Remove particles out of window
+            if particle.x < 0 or particle.x > self.size[0]: #width
+                self.particles.remove(particle)
+                print("REMOVED!")
+            elif particle.y < 0 or particle.y > self.size[1]: #height
+                self.particles.remove(particle)
+                print("REMOVED!")
+
+            #If particle has collided, skip
+            if particle.stop:
+                self.draw(particle)
+                continue
+
+            if self.detect_collision(particle):
+                particle.stop = True
+
+            particle.y += particle.fall_rate      #"Fall" the object by as many pixels defined in fall_rate
+            self.draw(particle)
+
+            #print(particle.y)
+
+        pygame.display.update()
         
+    def detect_collision(self, particle_check):
+        #Iterate over each particle to detect collision
+
+        if self.particle_size < 2:
+            return False
+
+        for particle in self.particles:
+
+            if particle_check.rect.left == particle.rect.left and particle_check.rect.top == particle.rect.top: #If the two particles have the same coordinates, assume its the same partcile (To avoid having to create a second list without the partcile being searched)
+                continue
+
+            if particle_check.rect.colliderect(particle.rect):
+                #print("STOPPED!")
+
+                particle_check.stop = True
+                particle.stop = True    #Particle that collided with current particle
+                
         
     def on_cleanup(self):
         pygame.quit()
@@ -95,7 +129,7 @@ class powder_game:
         particle = Sand(position)
         self.particles.append(particle)
         
-        self.draw(position, particle.colour, particle.dimension)
+        self.draw(particle)
 
 
     def on_execute(self):
@@ -136,12 +170,12 @@ class powder_game:
 
             self.on_loop()
             self.on_render()
-            clock.tick(120)
+            clock.tick(60)
 
-    def draw(self, position, colour, dimension):       #Draw the particle to the board
+    def draw(self, particle):       #Draw the particle to the board
 
             
-        pygame.draw.rect(self.board, colour, [position[0], position[1], dimension[0], dimension[1]])
+        pygame.draw.rect(self.board, particle.colour, [particle.x, particle.y, particle.dimension[0], particle.dimension[1]])
 
 
 
