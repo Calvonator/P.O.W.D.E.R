@@ -76,7 +76,7 @@ class singly_linked_list():
             current = self.head
 
             while current != None:
-                print(current.element)
+                print(current.element.y)
                 current = current.next
 
 
@@ -119,7 +119,7 @@ class Sand():
         self.colour = (255, 255, 102)   #Yellowy Sand Colour
         self.dimension = (8, 8)
         #self.rect = pygame.Rect(self.x, self.y, self.dimension)
-        self.fall_rate = 0  #Move every 5 frames
+        self.fall_rate = 5  #Move every 5 frames
         self.current_fall = self.fall_rate
     
     def falling(self):
@@ -138,7 +138,7 @@ class powder_game:
     def __init__(self):
         self._running = False
         self.board = None
-        self.size = self.weight, self.height = 1920, 1080#1280, 720
+        self.size = self.weight, self.height = 1280, 720
         self.particles = singly_linked_list()
         #self.orig_surf = None
         #self.new_surf = None

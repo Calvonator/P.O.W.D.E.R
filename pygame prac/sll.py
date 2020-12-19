@@ -3,15 +3,90 @@ from pygame import time
 #import operator
 import random
 
-#import time
+class sll_iterator():
+
+    def __init__(self, head):
+        self.current = head
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+
+        if not self.current:
+            raise StopIteration
+
+        else:
+            item = self.current.element
+            self.current = self.current.get_next()
+            return item
+
+class singly_linked_list():
+
+    def __init__(self):
+        self.head = None
+        self.size = 0
+
+    def __iter__(self):
+        return sll_iterator(self.head)
+
+    def create_node(self, value, next):
+        node = singly_linked_list_node(value, None)
+        return node
 
 
+    def insert(self, value):
+        if self.head != None:
+            current = self.head
+
+            while current != None:
+                previous = current
+                current = current.next 
+            previous.next = self.create_node(value, None)
+        else:
+            self.head = self.create_node(value, None)
 
 
-#def draw(self, position, colour):#, dimensions):       #Draw the particle to the board
-
+    def delete(self, target):           #Not done
+        if self.head != None:
+            current = self.head
+            #Use index to use a target with each article
+            while current.element.index != target or current != None:    
+                previous = current
+                current = current.next
             
-    #pygame.draw.rect(self.board, colour, [position[0], position[1], 15, 15])
+
+    def print(self):
+        if self.head != None:
+            current = self.head
+
+            while current != None:
+                print(current.element.y)
+                current = current.next
+
+
+    def find_target(self, target):
+        
+        current = self.head 
+        
+        while current != None:
+            if current.element == target:
+                return True
+            current = current.next
+        return False
+            
+
+
+class singly_linked_list_node():
+    __slots__ = 'next', 'element'
+    def __init__(self, value, next):
+        self.next = next
+        self.element = value
+
+    def get_next(self):
+        
+        return self.next
+
 
 class button():
 
@@ -115,7 +190,7 @@ class powder_game:
         self._running = False
         self.board = None
         self.size = self.width, self.height = 1280, 720
-        self.particles = []
+        self.particles = singly_linked_list()
         self.particle_size = 0
         self.buttons = []
         self.current_particle = "sand"
@@ -195,11 +270,11 @@ class powder_game:
                     
                 #Remove particles out of window
                 if particle.x < 0 or particle.x > self.size[0]: #width
-                    self.particles.remove(particle)
+                    self.particles.delete(particle)
                     self.particle_size -= 1
                     print("REMOVED!")
                 elif particle.y < 0 or particle.y > self.size[1]: #height
-                    self.particles.remove(particle)
+                    self.particles.delete(particle)
                     self.particle_size -= 1
                     print("REMOVED!")
 
@@ -286,7 +361,7 @@ class powder_game:
         elif self.current_particle == "life":
             particle = Life(position)
 
-        self.particles.append(particle)
+        self.particles.insert(particle)
         #self.draw(particle)
         self.particle_size += 1
 
