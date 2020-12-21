@@ -3,7 +3,7 @@ from pygame import time
 #import operator
 import random
 
-#import time
+import time
 
 
 
@@ -51,7 +51,7 @@ class Life():
         self.colour = (0, 255, 0)   #Yellowy Sand Colour
         self.dimension = (8, 8)
         self.grown = False
-        self.growth_rate = 0       #Grow once every 60 frames (1 sec if running at 60 fps)
+        self.growth_rate = 1       #Grow once every 60 frames (1 sec if running at 60 fps)
         self.growth_ctr = self.growth_rate
         self.rect = pygame.Rect(self.x, self.y, self.dimension[0], self.dimension[1])
 
@@ -309,7 +309,7 @@ class powder_game:
             
             #self.orig_surf = self.board.copy()
             #self.new_surf = pygame.surface.Surface()
-
+            first = time.time()
 
             for event in pygame.event.get():
                 self.on_event(event)
@@ -327,6 +327,8 @@ class powder_game:
             #time.sleep(0.01)
             self.on_loop()
             self.on_render()
+            second = time.time()
+            print(second - first)
             clock.tick(60)
 
     def draw(self, particle):       #Draw the particle to the board

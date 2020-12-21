@@ -2,6 +2,7 @@ import pygame
 from pygame import time
 #import operator
 import random
+import time
 
 class sll_iterator():
 
@@ -32,6 +33,7 @@ class singly_linked_list():
 
     def create_node(self, value, next):
         node = singly_linked_list_node(value, None)
+        self.size += 1
         return node
 
 
@@ -48,20 +50,37 @@ class singly_linked_list():
 
 
     def delete(self, target):           #Not done
-        if self.head != None:
-            current = self.head
-            #Use index to use a target with each article
-            while current.element.index != target or current != None:    
-                previous = current
-                current = current.next
-            
+
+        current = self.head
+
+        if current is not None:
+            if current.element.index == target: #If head is the target
+
+                self.head = current.get_next()
+                current = None
+                return True
+        
+        while current is not None:
+            if current.element.index == target:
+                break
+
+            previous = current
+            current = current.get_next()
+
+        if current == None:     #Key was not present
+            return False
+        
+        previous.next = current.get_next()
+
+        current = None
+
 
     def print(self):
         if self.head != None:
             current = self.head
 
             while current != None:
-                print(current.element.y)
+                print(current.element.index)
                 current = current.next
 
 
@@ -103,7 +122,8 @@ class button():
 
 class Sand():
 
-    def __init__(self, coordinates):
+    def __init__(self, index, coordinates):
+        self.index = index
         self.type = 0
         self.x, self.y = coordinates[0], coordinates[1]      #Coordinates
         #self.exists = True
@@ -120,13 +140,14 @@ class Sand():
 
 class Life():
 
-    def __init__(self, coordinates):
+    def __init__(self, index, coordinates):
+        self.index = index
         self.type = 1
         self.x, self.y = coordinates[0], coordinates[1]
         self.colour = (0, 255, 0)   #Yellowy Sand Colour
         self.dimension = (8, 8)
         self.grown = False
-        self.growth_rate = 0       #Grow once every 60 frames (1 sec if running at 60 fps)
+        self.growth_rate = 1       #Grow once every 60 frames (1 sec if running at 60 fps)
         self.growth_ctr = self.growth_rate
         self.rect = pygame.Rect(self.x, self.y, self.dimension[0], self.dimension[1])
 
@@ -270,11 +291,11 @@ class powder_game:
                     
                 #Remove particles out of window
                 if particle.x < 0 or particle.x > self.size[0]: #width
-                    self.particles.delete(particle)
+                    self.particles.delete(particle.index)
                     self.particle_size -= 1
                     print("REMOVED!")
                 elif particle.y < 0 or particle.y > self.size[1]: #height
-                    self.particles.delete(particle)
+                    self.particles.delete(particle.index)
                     self.particle_size -= 1
                     print("REMOVED!")
 
@@ -355,18 +376,17 @@ class powder_game:
         pygame.quit()
 
     def spawn(self, position):  #Determine current selected particle (Or use a global set variable) and spawn that particle. Add particle object to particle list
-        
+        particle_index = self.particle_size + 1
         if self.current_particle == "sand":
-            particle = Sand(position)
+            particle = Sand(particle_index, position)
         elif self.current_particle == "life":
-            particle = Life(position)
+            particle = Life(particle_index, position)
 
         self.particles.insert(particle)
         #self.draw(particle)
         self.particle_size += 1
 
     def on_execute(self):
-        
         
 
         if self.on_init() == False:
@@ -384,7 +404,7 @@ class powder_game:
             
             #self.orig_surf = self.board.copy()
             #self.new_surf = pygame.surface.Surface()
-
+            first = time.time()
 
             for event in pygame.event.get():
                 self.on_event(event)
@@ -400,8 +420,13 @@ class powder_game:
             #y += 1
  
             #time.sleep(0.01)
+            #self.particles.print()
             self.on_loop()
             self.on_render()
+
+            second = time.time()
+            frame = second - first
+            print(frame)
             clock.tick(60)
 
     def draw(self, particle):       #Draw the particle to the board
